@@ -28,6 +28,7 @@ app.command("/prbot", async ({ command, ack, say }) => {
   const data = await fetchAllPullRequests();
   const pullRequests = [];
 
+  //TODO, refactor this to use filter
   for (let i = 0; i < data.length; i++) {
     if (isSelectedTeam(team, data[i].head.ref)) {//TODO add check if pr is closed/merged
       pullRequests.push(data[i]);
@@ -40,11 +41,11 @@ app.command("/prbot", async ({ command, ack, say }) => {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: "Hello, below you will find previews for all open pull requests for *BMS* team",
+          text: `Hello, below you will find previews for all open pull requests for *${team}* team`,
         },
       },
       ...previews,
-    ],
+    ], 
   });
  
 });

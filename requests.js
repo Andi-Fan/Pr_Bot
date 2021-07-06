@@ -8,6 +8,7 @@ const repo = process.env.REPO;
 async function fetchAllPullRequests() {
   try {
     const response = await fetch(
+      //By default this endpoint only fetches open PR's
       `https://api.github.com/repos/${owner}/${repo}/pulls`,
       {
         method: "GET",

@@ -1,10 +1,22 @@
-function parseTags(text) {
-  //TODO filter among options BMS, CORE, QUOTE, DATA, PLATFORM
-  return text;
+function parseTags(text){
+  if (text.includes('bms') || text.includes('BMS')){
+    return 'BMS';
+  }
+  else if (text.includes('core') || text.includes('CORE')){
+    return 'CORE';
+  }
+  else if (text.includes('quote') || text.includes('QUOTE')){
+    return 'QUOTE';
+  }
+  else if (text.includes('data') || text.includes('DATA')){
+    return 'DATA';
+  }
+  return 'ALL';
 }
 
 function isSelectedTeam(teamTag, branchName) {
-  return true;
+  if (teamTag === "ALL"){return true}
+  return branchName.includes(teamTag.toLowerCase()) || branchName.includes(teamTag.toUpperCase());
 }
 
 function createPreviews(pullRequests) {
