@@ -1,0 +1,44 @@
+const fetch = require("node-fetch");
+const dotenv = require("dotenv");
+dotenv.config();
+
+const owner = process.env.OWNER;
+const repo = process.env.REPO;
+
+async function fetchAllPullRequests() {
+  try {
+    const response = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/pulls`,
+      {
+        method: "GET",
+      }
+    );
+    const data = await response.json();
+    if (response.status != 200) {
+      throw Error(`${response.Error}`);
+    }
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function getFilesChanged(pullNumber) {
+    try {
+        const response = await fetch(
+          `https://api.github.com/repos/${owner}/${repo}/pulls/${pullNumber}/files`,
+          {
+            method: "GET",
+          }
+        );
+        const data = await response.json();
+        if (response.status != 200) {
+          throw Error(`${response.Error}`);
+        }
+        return data;
+      } catch (error) {
+        console.error(error);
+      }
+}
+
+module.exports = { fetchAllPullRequests, getFilesChanged };
