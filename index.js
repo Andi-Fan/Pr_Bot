@@ -24,13 +24,15 @@ app.command("/prbot", async ({ command, ack, say }) => {
   // Acknowledge command request
   await ack();
 
+  //TODO validate input and send tip message if wrong parameters
+  
   const team = parseTags(command.text);
   const data = await fetchAllPullRequests();
   const pullRequests = [];
 
   //TODO, refactor this to use filter
   for (let i = 0; i < data.length; i++) {
-    if (isSelectedTeam(team, data[i].head.ref)) {//TODO add check if pr is closed/merged
+    if (isSelectedTeam(team, data[i].head.ref)) {
       pullRequests.push(data[i]);
     }
   }
@@ -53,6 +55,12 @@ app.command("/prbot", async ({ command, ack, say }) => {
 app.action("button-action", async ({ body, ack, say }) => {
   // Acknowledge button click event
   await ack();
+});
+
+app.action("actionId-0", async ({ body, ack, say }) => {
+  // Acknowledge button click event
+  await ack();
+  console.log(body);
 });
 
 (async () => {

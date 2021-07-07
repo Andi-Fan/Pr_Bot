@@ -4,6 +4,9 @@ dotenv.config();
 
 const owner = process.env.OWNER;
 const repo = process.env.REPO;
+const access_token = process.env.ACCESS_TOKEN;
+
+const bearer = 'Bearer ' + access_token;
 
 async function fetchAllPullRequests() {
   try {
@@ -12,6 +15,10 @@ async function fetchAllPullRequests() {
       `https://api.github.com/repos/${owner}/${repo}/pulls`,
       {
         method: "GET",
+        headers: {
+          'Authorization': bearer,
+          'Content-Type': 'application/json'
+        },
       }
     );
     const data = await response.json();
@@ -30,6 +37,10 @@ async function getFilesChanged(pullNumber) {
           `https://api.github.com/repos/${owner}/${repo}/pulls/${pullNumber}/files`,
           {
             method: "GET",
+            headers: {
+              'Authorization': bearer,
+              'Content-Type': 'application/json'
+            },
           }
         );
         const data = await response.json();

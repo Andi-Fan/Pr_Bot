@@ -1,22 +1,24 @@
-function parseTags(text){
-  if (text.includes('bms') || text.includes('BMS')){
-    return 'BMS';
+function parseTags(text) {
+  if (text.includes("bms") || text.includes("BMS")) {
+    return "BMS";
+  } else if (text.includes("core") || text.includes("CORE")) {
+    return "CORE";
+  } else if (text.includes("quote") || text.includes("QUOTE")) {
+    return "QUOTE";
+  } else if (text.includes("data") || text.includes("DATA")) {
+    return "DATA";
   }
-  else if (text.includes('core') || text.includes('CORE')){
-    return 'CORE';
-  }
-  else if (text.includes('quote') || text.includes('QUOTE')){
-    return 'QUOTE';
-  }
-  else if (text.includes('data') || text.includes('DATA')){
-    return 'DATA';
-  }
-  return 'ALL';
+  return "ALL";
 }
 
 function isSelectedTeam(teamTag, branchName) {
-  if (teamTag === "ALL"){return true}
-  return branchName.includes(teamTag.toLowerCase()) || branchName.includes(teamTag.toUpperCase());
+  if (teamTag === "ALL") {
+    return true;
+  }
+  return (
+    branchName.includes(teamTag.toLowerCase()) ||
+    branchName.includes(teamTag.toUpperCase())
+  );
 }
 
 function createPreviews(pullRequests) {
