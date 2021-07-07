@@ -1,5 +1,14 @@
-const { parseTags, isSelectedTeam, createPreviews } = require("./utils.js");
-const { fetchAllPullRequests, getFilesChanged, fetchPullRequestByNumber } = require("./requests.js");
+const {
+  parseTags,
+  isSelectedTeam,
+  createPreviews,
+  createModalBlocks,
+} = require("./utils.js");
+const {
+  fetchAllPullRequests,
+  getFilesChanged,
+  fetchPullRequestByNumber,
+} = require("./requests.js");
 
 const { App } = require("@slack/bolt");
 const fetch = require("node-fetch");
@@ -10,12 +19,14 @@ dotenv.config();
 const SLACK_SIGNING_SECRET = process.env.SLACK_SIGNING_SECRET;
 const SLACK_BOT_TOKEN = process.env.SLACK_BOT_TOKEN;
 
-const NUM_REVIEWS_REQUIRED = 2;
-
 const app = new App({
   token: SLACK_BOT_TOKEN,
   signingSecret: SLACK_SIGNING_SECRET,
 });
+
+//TODO add command for setting up and disabling a periodic alert
+
+//TODO add command for viewing individual PR by pr number (maybe not now that there is detail page)
 
 /* 
   Event listener for prbot command. Displays all open PRS for the specified team
@@ -25,7 +36,7 @@ app.command("/prbot", async ({ command, ack, say }) => {
   await ack();
 
   //TODO validate input and send tip message if wrong parameters
-  
+
   const team = parseTags(command.text);
   const data = await fetchAllPullRequests();
   const pullRequests = [];
@@ -47,9 +58,8 @@ app.command("/prbot", async ({ command, ack, say }) => {
         },
       },
       ...previews,
-    ], 
+    ],
   });
- 
 });
 
 app.action("button-action", async ({ body, ack, say }) => {
@@ -57,31 +67,50 @@ app.action("button-action", async ({ body, ack, say }) => {
   await ack();
 });
 
-app.action("actionId-details", async ({ body, ack, say }) => {
+app.action("actionId-details", async ({ body, ack, say, client }) => {
   // Acknowledge button click event
   await ack();
 
   const pullNumber = body.actions[0].value;
   const pullRequest = await fetchPullRequestByNumber(pullNumber);
-  const filesChanged = await getFilesChanged(pullNumber);
 
+  //TODO add date difference to modal, and maybe commit title as well
   const details = {
-    commitTitle: pullRequest.title,
     title: pullRequest.head.ref,
-    author: pullRequest.user.login,
-    requestedReviewers: pullRequest.requested_reviewers,
     numFilesChanged: pullRequest.changed_files,
     numCommits: pullRequest.commits,
     numInsertions: pullRequest.additions,
     numDeletions: pullRequest.deletions,
     link: pullRequest.html_url,
+    base: pullRequest.base.ref,
+    author: pullRequest.user.login, 
+    avatar: pullRequest.user.avatar_url,
+  };
+
+  const modalBlocks = createModalBlocks(details);
+  try {
+    // Call views.open with the built-in client
+    const result = await client.views.open({
+      // Pass a valid trigger_id within 3 seconds of receiving it
+      trigger_id: body.trigger_id,
+      // View payload
+      view: {
+        type: "modal",
+        callback_id: "view_1",
+        title: {
+          type: "plain_text",
+          text: `${details.title}`,
+        },
+        blocks: [...modalBlocks],
+      },
+    });
+  } catch (error) {
+    console.error(error);
   }
-  
-  
 });
 
+//bot startup
 (async () => {
-  // bot startup
   await app.start(process.env.PORT || 3000);
 
   console.log("PR Bot: Bolt app is running!");

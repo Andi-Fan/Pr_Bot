@@ -37,24 +37,6 @@ function createPreviews(pullRequests) {
         },
       },
       {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `${pullRequests[i].commits} changed files into :github: *${pullRequests[i].base.ref}*`,
-        },
-        accessory: {
-          type: "button",
-          text: {
-            type: "plain_text",
-            text: "Review",
-            emoji: true,
-          },
-          value: "click_me_123",
-          url: `${pullRequests[i].html_url}`,
-          action_id: "button-action",
-        },
-      },
-      {
         type: "context",
         elements: [
           {
@@ -91,6 +73,17 @@ function createPreviews(pullRequests) {
             value: `${pullRequests[i].number}`,
             action_id: "actionId-details",
           },
+          {
+            type: "button",
+            text: {
+              type: "plain_text",
+              text: "Review",
+              emoji: true,
+            },
+            value: `${pullRequests[i].number}`,
+            url: `${pullRequests[i].html_url}`,
+            action_id: "button-action",
+          },
         ],
       }
     );
@@ -98,4 +91,63 @@ function createPreviews(pullRequests) {
   return previewList;
 }
 
-module.exports = { parseTags, isSelectedTeam, createPreviews };
+function createModalBlocks(details) {
+  const modalBlocks = [
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `Merging *${details.numCommits} commit(s)* into :github: *${details.base}*`,
+      },
+      accessory: {
+        type: "button",
+        text: {
+          type: "plain_text",
+          text: "Review",
+          emoji: true,
+        },
+        value: "click_me_123",
+        url: `${details.link}`,
+        action_id: "button-action",
+      },
+    },
+    {
+      type: "divider",
+    },
+    {
+      type: "context",
+      elements: [
+        {
+          type: "plain_text",
+          text: `++${details.numInsertions} lines of insertion \n --${details.numDeletions} lines of deletion`,
+          emoji: true,
+        },
+      ],
+    },
+    {
+      type: "divider",
+    },
+    {
+      type: "context",
+      elements: [
+        {
+          type: "image",
+          image_url: `${details.avatar}`,
+          alt_text: "user.avatar_url",
+        },
+        {
+          type: "mrkdwn",
+          text: `*${details.numFilesChanged} files changed by ${details.author}*`,
+        },
+      ],
+    },
+  ];
+  return modalBlocks;
+}
+
+module.exports = {
+  parseTags,
+  isSelectedTeam,
+  createPreviews,
+  createModalBlocks,
+};
