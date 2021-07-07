@@ -1,9 +1,5 @@
-const {
-  parseTags,
-  isSelectedTeam,
-  createPreviews,
-  createModalBlocks,
-} = require("./utils.js");
+const { parseTags, isSelectedTeam, getPullRequestAge } = require("./utils.js");
+const { createPreviews, createModalBlocks } = require("./blockUtils.js");
 const {
   fetchAllPullRequests,
   getFilesChanged,
@@ -26,28 +22,26 @@ const app = new App({
 
 //TODO add command for setting up and disabling a periodic alert
 
-//TODO add command for viewing individual PR by pr number (maybe not now that there is detail page)
-
-/* 
-  Event listener for prbot command. Displays all open PRS for the specified team
-*/
 app.command("/prbot", async ({ command, ack, say }) => {
   // Acknowledge command request
   await ack();
 
-  //TODO validate input and send tip message if wrong parameters
-
   const team = parseTags(command.text);
+  if (!team) {
+    return await say("*Usage: /prbot <team tag>*");
+  }
+
   const data = await fetchAllPullRequests();
   const pullRequests = [];
 
-  //TODO, refactor this to use filter
   for (let i = 0; i < data.length; i++) {
     if (isSelectedTeam(team, data[i].head.ref)) {
       pullRequests.push(data[i]);
     }
   }
+
   const previews = createPreviews(pullRequests);
+
   await say({
     blocks: [
       {
@@ -74,7 +68,10 @@ app.action("actionId-details", async ({ body, ack, say, client }) => {
   const pullNumber = body.actions[0].value;
   const pullRequest = await fetchPullRequestByNumber(pullNumber);
 
-  //TODO add date difference to modal, and maybe commit title as well
+  const now = new Date()
+  const openDate = new Date(pullRequest.created_at);
+  const cycleAge = getPullRequestAge(openDate, now); //age in hours
+  
   const details = {
     title: pullRequest.head.ref,
     numFilesChanged: pullRequest.changed_files,
@@ -83,11 +80,13 @@ app.action("actionId-details", async ({ body, ack, say, client }) => {
     numDeletions: pullRequest.deletions,
     link: pullRequest.html_url,
     base: pullRequest.base.ref,
-    author: pullRequest.user.login, 
+    author: pullRequest.user.login,
     avatar: pullRequest.user.avatar_url,
+    age: cycleAge,
   };
 
   const modalBlocks = createModalBlocks(details);
+
   try {
     // Call views.open with the built-in client
     const result = await client.views.open({
