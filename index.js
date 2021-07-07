@@ -1,5 +1,5 @@
 const { parseTags, isSelectedTeam, createPreviews } = require("./utils.js");
-const { fetchAllPullRequests, getFilesChanged } = require("./requests.js");
+const { fetchAllPullRequests, getFilesChanged, fetchPullRequestByNumber } = require("./requests.js");
 
 const { App } = require("@slack/bolt");
 const fetch = require("node-fetch");
@@ -57,10 +57,27 @@ app.action("button-action", async ({ body, ack, say }) => {
   await ack();
 });
 
-app.action("actionId-0", async ({ body, ack, say }) => {
+app.action("actionId-details", async ({ body, ack, say }) => {
   // Acknowledge button click event
   await ack();
-  console.log(body);
+
+  const pullNumber = body.actions[0].value;
+  const pullRequest = await fetchPullRequestByNumber(pullNumber);
+  const filesChanged = await getFilesChanged(pullNumber);
+
+  const details = {
+    commitTitle: pullRequest.title,
+    title: pullRequest.head.ref,
+    author: pullRequest.user.login,
+    requestedReviewers: pullRequest.requested_reviewers,
+    numFilesChanged: pullRequest.changed_files,
+    numCommits: pullRequest.commits,
+    numInsertions: pullRequest.additions,
+    numDeletions: pullRequest.deletions,
+    link: pullRequest.html_url,
+  }
+  
+  
 });
 
 (async () => {

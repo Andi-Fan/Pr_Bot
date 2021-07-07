@@ -40,7 +40,7 @@ function createPreviews(pullRequests) {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: `${pullRequests[i].number} changed files into :github: *${pullRequests[i].base.ref}*`,
+          text: `${pullRequests[i].commits} changed files into :github: *${pullRequests[i].base.ref}*`,
         },
         accessory: {
           type: "button",
@@ -75,6 +75,21 @@ function createPreviews(pullRequests) {
             type: "plain_text",
             text: `Author: ${pullRequests[i].user.login}`,
             emoji: true,
+          },
+        ],
+      },
+      {
+        type: "actions",
+        elements: [
+          {
+            type: "button",
+            text: {
+              type: "plain_text",
+              text: "Details",
+              emoji: true,
+            },
+            value: `${pullRequests[i].number}`,
+            action_id: "actionId-details",
           },
         ],
       }
