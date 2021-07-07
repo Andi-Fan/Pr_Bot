@@ -54,30 +54,7 @@ async function fetchPullRequestByNumber(pullNumber) {
   }
 }
 
-async function getFilesChanged(pullNumber) {
-  try {
-    const response = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/pulls/${pullNumber}/files`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: bearer,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    const data = await response.json();
-    if (response.status != 200) {
-      throw Error(`${response.Error}`);
-    }
-    return data;
-  } catch (error) {
-    console.error(error);
-  }
-}
-
 module.exports = {
   fetchAllPullRequests,
-  getFilesChanged,
   fetchPullRequestByNumber,
 };

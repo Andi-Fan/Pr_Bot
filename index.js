@@ -2,7 +2,6 @@ const { parseTags, isSelectedTeam, getPullRequestAge } = require("./utils.js");
 const { createPreviews, createModalBlocks } = require("./blockUtils.js");
 const {
   fetchAllPullRequests,
-  getFilesChanged,
   fetchPullRequestByNumber,
 } = require("./requests.js");
 
