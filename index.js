@@ -1,5 +1,5 @@
 const { parseTags, isSelectedTeam, createDetails } = require("./utils.js");
-const { createPreviews, createModalBlocks } = require("./blockUtils.js");
+const { createPreviews, createModalBlocks, createPreviewsHeader } = require("./blockUtils.js");
 const {
   fetchAllPullRequests,
   fetchPullRequestByNumber,
@@ -16,7 +16,6 @@ const app = new App({
 });
 
 app.command("/prbot", async ({ command, ack, say }) => {
-  // Acknowledge command request
   await ack();
 
   const team = parseTags(command.text);
@@ -26,21 +25,22 @@ app.command("/prbot", async ({ command, ack, say }) => {
 
   const data = await fetchAllPullRequests();
 
+  await say({...createPreviewsHeader(team)}); //Display header
+
   for (let i = 0; i < data.length; i++) {
     if (isSelectedTeam(team, data[i].head.ref)) {
       //Displaying PR preview's individually, because Slack only allows 50 blocks per message
-      await say({ ...createPreviews(team, data[i]) });
+      await say({ ...createPreviews(data[i]) });
     }
   }
 });
 
-app.action("button-action", async ({ body, ack, say }) => {
-  // Acknowledge button click event
+//Acknowledge review button click so slack api doesn't get mad
+app.action("button-action", async ({ ack }) => {
   await ack();
 });
 
-app.action("actionId-details", async ({ body, ack, say, client }) => {
-  // Acknowledge button click event
+app.action("actionId-details", async ({ body, ack, client }) => {
   await ack();
 
   const pullNumber = body.actions[0].value;

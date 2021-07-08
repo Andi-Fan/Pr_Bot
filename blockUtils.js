@@ -1,7 +1,5 @@
-function createPreviews(team, pullRequest) {
-  const created_on = new Date(pullRequest.created_at);
-  const updated_on = new Date(pullRequest.updated_at);
-  const preview = {
+function createPreviewsHeader(team) {
+  const header = {
     blocks: [
       {
         type: "section",
@@ -10,6 +8,16 @@ function createPreviews(team, pullRequest) {
           text: `Hello, below you will find previews for all open pull requests for *${team}* team`,
         },
       },
+    ],
+  };
+  return header;
+}
+
+function createPreviews(pullRequest) {
+  const created_on = new Date(pullRequest.created_at);
+  const updated_on = new Date(pullRequest.updated_at);
+  const preview = {
+    blocks: [
       {
         type: "divider",
       },
@@ -79,13 +87,13 @@ function createPreviews(team, pullRequest) {
 function createModalBlocks(details) {
   const modalBlocks = [
     {
-        type: "header",
-        text: {
-          type: "plain_text",
-          text: `${details.title}`,
-          emoji: true,
-        },
+      type: "header",
+      text: {
+        type: "plain_text",
+        text: `${details.title}`,
+        emoji: true,
       },
+    },
     {
       type: "section",
       text: {
@@ -150,4 +158,5 @@ function createModalBlocks(details) {
 module.exports = {
   createPreviews,
   createModalBlocks,
+  createPreviewsHeader,
 };
