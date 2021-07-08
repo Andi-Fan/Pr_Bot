@@ -8,15 +8,11 @@ const {
 const { App } = require("@slack/bolt");
 const fetch = require("node-fetch");
 const dotenv = require("dotenv");
-
 dotenv.config();
 
-const SLACK_SIGNING_SECRET = process.env.SLACK_SIGNING_SECRET;
-const SLACK_BOT_TOKEN = process.env.SLACK_BOT_TOKEN;
-
 const app = new App({
-  token: SLACK_BOT_TOKEN,
-  signingSecret: SLACK_SIGNING_SECRET,
+  token: process.env.SLACK_BOT_TOKEN,
+  signingSecret: process.env.SLACK_SIGNING_SECRET,
 });
 
 app.command("/prbot", async ({ command, ack, say }) => {
@@ -29,18 +25,12 @@ app.command("/prbot", async ({ command, ack, say }) => {
   }
 
   const data = await fetchAllPullRequests();
-  const pullRequests = [];
 
   for (let i = 0; i < data.length; i++) {
     if (isSelectedTeam(team, data[i].head.ref)) {
-      pullRequests.push(data[i]);
+      //Displaying PR preview's individually, because Slack only allows 50 blocks per message
+      await say({ ...createPreviews(team, data[i]) });
     }
-  }
-
-  //Have to display per PR, because Slack only allows 50 blocks per message
-  for (let i = 0; i < pullRequests.length; i++){
-    let preview = createPreviews(team, pullRequests[i]);
-    await say({...preview});
   }
 });
 
@@ -56,7 +46,7 @@ app.action("actionId-details", async ({ body, ack, say, client }) => {
   const pullNumber = body.actions[0].value;
   const pullRequest = await fetchPullRequestByNumber(pullNumber);
 
-  const details = {...createDetails(pullRequest)};
+  const details = { ...createDetails(pullRequest) };
   const modalBlocks = createModalBlocks(details);
 
   try {
