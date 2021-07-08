@@ -1,9 +1,15 @@
-function createPreviews(pullRequests) {
-  const previewList = [];
-  for (let i = 0; i < pullRequests.length; i++) {
-    let created_on = new Date(pullRequests[i].created_at);
-    let updated_on = new Date(pullRequests[i].updated_at);
-    previewList.push(
+function createPreviews(team, pullRequest) {
+  const created_on = new Date(pullRequest.created_at);
+  const updated_on = new Date(pullRequest.updated_at);
+  const preview = {
+    blocks: [
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `Hello, below you will find previews for all open pull requests for *${team}* team`,
+        },
+      },
       {
         type: "divider",
       },
@@ -11,7 +17,7 @@ function createPreviews(pullRequests) {
         type: "header",
         text: {
           type: "plain_text",
-          text: `${pullRequests[i].head.ref}`,
+          text: `${pullRequest.head.ref}`,
           emoji: true,
         },
       },
@@ -29,12 +35,12 @@ function createPreviews(pullRequests) {
         elements: [
           {
             type: "image",
-            image_url: `${pullRequests[i].user.avatar_url}`,
+            image_url: `${pullRequest.user.avatar_url}`,
             alt_text: "user.avatar_url",
           },
           {
             type: "plain_text",
-            text: `Author: ${pullRequests[i].user.login}`,
+            text: `Author: ${pullRequest.user.login}`,
             emoji: true,
           },
         ],
@@ -49,7 +55,7 @@ function createPreviews(pullRequests) {
               text: "Details",
               emoji: true,
             },
-            value: `${pullRequests[i].number}`,
+            value: `${pullRequest.number}`,
             action_id: "actionId-details",
           },
           {
@@ -59,15 +65,15 @@ function createPreviews(pullRequests) {
               text: "Review",
               emoji: true,
             },
-            value: `${pullRequests[i].number}`,
-            url: `${pullRequests[i].html_url}`,
+            value: `${pullRequest.number}`,
+            url: `${pullRequest.html_url}`,
             action_id: "button-action",
           },
         ],
-      }
-    );
-  }
-  return previewList;
+      },
+    ],
+  };
+  return preview;
 }
 
 function createModalBlocks(details) {
@@ -94,14 +100,14 @@ function createModalBlocks(details) {
       type: "divider",
     },
     {
-        type: "context",
-        elements: [
-          {
-            type: "mrkdwn",
-            text: `Pull request has been opened for *${details.age}* hours`,
-          },
-        ],
-      },
+      type: "context",
+      elements: [
+        {
+          type: "mrkdwn",
+          text: `Pull request has been opened for *${details.age}* hours`,
+        },
+      ],
+    },
     {
       type: "context",
       elements: [

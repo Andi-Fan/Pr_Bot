@@ -19,8 +19,6 @@ const app = new App({
   signingSecret: SLACK_SIGNING_SECRET,
 });
 
-//TODO add command for setting up and disabling a periodic alert
-
 app.command("/prbot", async ({ command, ack, say }) => {
   // Acknowledge command request
   await ack();
@@ -39,20 +37,12 @@ app.command("/prbot", async ({ command, ack, say }) => {
     }
   }
 
-  const previews = createPreviews(pullRequests);
-
-  await say({
-    blocks: [
-      {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `Hello, below you will find previews for all open pull requests for *${team}* team`,
-        },
-      },
-      ...previews,
-    ],
-  });
+  //Have to display per PR, because Slack only allows 50 blocks per message
+  for (let i = 0; i < pullRequests.length; i++){
+    let preview = createPreviews(team, pullRequests[i]);
+    console.log(preview);
+    await say({...preview});
+  }
 });
 
 app.action("button-action", async ({ body, ack, say }) => {
@@ -67,10 +57,10 @@ app.action("actionId-details", async ({ body, ack, say, client }) => {
   const pullNumber = body.actions[0].value;
   const pullRequest = await fetchPullRequestByNumber(pullNumber);
 
-  const now = new Date()
+  const now = new Date();
   const openDate = new Date(pullRequest.created_at);
   const cycleAge = getPullRequestAge(openDate, now); //age in hours
-  
+
   const details = {
     title: pullRequest.head.ref,
     numFilesChanged: pullRequest.changed_files,
@@ -83,6 +73,8 @@ app.action("actionId-details", async ({ body, ack, say, client }) => {
     avatar: pullRequest.user.avatar_url,
     age: cycleAge,
   };
+
+  console.log(details);
 
   const modalBlocks = createModalBlocks(details);
 
