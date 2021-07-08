@@ -79,6 +79,14 @@ function createPreviews(team, pullRequest) {
 function createModalBlocks(details) {
   const modalBlocks = [
     {
+        type: "header",
+        text: {
+          type: "plain_text",
+          text: `${details.title}`,
+          emoji: true,
+        },
+      },
+    {
       type: "section",
       text: {
         type: "mrkdwn",

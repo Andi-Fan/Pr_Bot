@@ -89,7 +89,7 @@ app.action("actionId-details", async ({ body, ack, say, client }) => {
         callback_id: "view_1",
         title: {
           type: "plain_text",
-          text: `${details.title}`,
+          text: "Details",
         },
         blocks: [...modalBlocks],
       },
