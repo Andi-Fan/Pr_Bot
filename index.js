@@ -1,4 +1,4 @@
-const { parseTags, isSelectedTeam, getPullRequestAge } = require("./utils.js");
+const { parseTags, isSelectedTeam, createDetails } = require("./utils.js");
 const { createPreviews, createModalBlocks } = require("./blockUtils.js");
 const {
   fetchAllPullRequests,
@@ -40,7 +40,6 @@ app.command("/prbot", async ({ command, ack, say }) => {
   //Have to display per PR, because Slack only allows 50 blocks per message
   for (let i = 0; i < pullRequests.length; i++){
     let preview = createPreviews(team, pullRequests[i]);
-    console.log(preview);
     await say({...preview});
   }
 });
@@ -57,25 +56,7 @@ app.action("actionId-details", async ({ body, ack, say, client }) => {
   const pullNumber = body.actions[0].value;
   const pullRequest = await fetchPullRequestByNumber(pullNumber);
 
-  const now = new Date();
-  const openDate = new Date(pullRequest.created_at);
-  const cycleAge = getPullRequestAge(openDate, now); //age in hours
-
-  const details = {
-    title: pullRequest.head.ref,
-    numFilesChanged: pullRequest.changed_files,
-    numCommits: pullRequest.commits,
-    numInsertions: pullRequest.additions,
-    numDeletions: pullRequest.deletions,
-    link: pullRequest.html_url,
-    base: pullRequest.base.ref,
-    author: pullRequest.user.login,
-    avatar: pullRequest.user.avatar_url,
-    age: cycleAge,
-  };
-
-  console.log(details);
-
+  const details = {...createDetails(pullRequest)};
   const modalBlocks = createModalBlocks(details);
 
   try {

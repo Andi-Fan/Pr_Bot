@@ -28,8 +28,29 @@ function getPullRequestAge(dateOpen, now){
   return Math.floor(diff);
 }
 
+function createDetails(pullRequest){
+  const now = new Date();
+  const openDate = new Date(pullRequest.created_at);
+  const cycleAge = getPullRequestAge(openDate, now); //age in hours
+
+  const details = {
+    title: pullRequest.head.ref,
+    numFilesChanged: pullRequest.changed_files,
+    numCommits: pullRequest.commits,
+    numInsertions: pullRequest.additions,
+    numDeletions: pullRequest.deletions,
+    link: pullRequest.html_url,
+    base: pullRequest.base.ref,
+    author: pullRequest.user.login,
+    avatar: pullRequest.user.avatar_url,
+    age: cycleAge,
+  };
+
+  return details;
+}
+
 module.exports = {
   parseTags,
   isSelectedTeam,
-  getPullRequestAge
+  createDetails,
 };
